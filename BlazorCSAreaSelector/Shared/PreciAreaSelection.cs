@@ -13,7 +13,5 @@ namespace BlazorCSAreaSelector.Shared
         public float LastMouseY { set; get; }
         public float Width { set; get; }
         public float Height { set; get; }
-
-        public PreciAreaSelection() { }
     }
 }

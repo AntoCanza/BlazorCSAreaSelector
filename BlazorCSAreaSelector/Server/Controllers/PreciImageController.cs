@@ -36,12 +36,13 @@ namespace BlazorCSAreaSelector.Server.Controllers
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             Image image = Image.FromFile(Path.Combine(baseDir, imageRepo, fileName));
             var fileNameElab = AppendTimeStamp(fileName);
+            CleaupDir(baseDir, fileName);
 
             using (Graphics graphics = Graphics.FromImage(image))
             {
                 using (SolidBrush brush = new SolidBrush(Color.Black))
                 {
-                    //drag rectangle => users have four possible directions
+                    //draw rectangular area => users has four possible directions
                     float x = Math.Min(areaInfo.StartMouseX, areaInfo.LastMouseX);
                     float y = Math.Min(areaInfo.StartMouseY, areaInfo.LastMouseY);
                     float width = Math.Abs(areaInfo.LastMouseX - areaInfo.StartMouseX);
@@ -49,7 +50,6 @@ namespace BlazorCSAreaSelector.Server.Controllers
 
                     graphics.FillRectangle(brush, new RectangleF(x, y, width, height));
                 }
-                CleaupDir(baseDir, fileName);
                 image.Save(Path.Combine(baseDir, imageRepo, fileNameElab));
             }
             areaInfo.RenderedImage = fileNameElab;
