@@ -1,0 +1,64 @@
+﻿@inject IJSRuntime jsRuntime
+@inject IPreciImageService ImageService
+
+<div id="preciImageContainer" class="preciImageContainer" @onmousedown="Mousedown" @onmouseup="MouseUp" @onmousemove="MouseMove"
+     style="background: url('@FileName') no-repeat;">
+    <BECanvas Width="960" Height="960" @ref="_canvasReference"></BECanvas>
+</div>
+
+<p>X: @_currentMouseX Y: @_currentMouseY</p>
+<p>X: @_offsetX Y: @_offsetY</p>
+<p>X: @_lastMouseX Y: @_lastMouseY</p>
+<p>X: @_mousedown</p>
+
+@code {
+    [Parameter]
+    public string FileName { get; set; }
+    private Canvas2DContext _context;
+    protected BECanvasComponent _canvasReference;
+    private float _offsetX, _offsetY = 0;
+    private float _currentMouseX, _currentMouseY = 0;
+    private float _lastMouseX, _lastMouseY = 0;
+    private float _width, _height = 0;
+    private bool _mousedown = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        this._context = await this._canvasReference.CreateCanvas2DAsync();
+        //we need to calculate offset after canvas is rendered.
+        _offsetX = await jsRuntime.InvokeAsync<float>("getOffsetLeft", "preciImageContainer");
+        _offsetY = await jsRuntime.InvokeAsync<float>("getOffsetTop", "preciImageContainer");
+    }
+
+    private void Mousedown(MouseEventArgs e)
+    {
+        _lastMouseX = (float)e.ClientX - _offsetX;
+        _lastMouseY = (float)e.ClientY - _offsetY;
+        _mousedown = true;
+    }
+
+    private void MouseUp(MouseEventArgs e)
+    {
+        _mousedown = false;
+        FileName = ImageService.GetElaboratedImage(_lastMouseX, _lastMouseY, _width, _height);
+    }
+
+    private async Task MouseMove(MouseEventArgs e)
+    {
+        _currentMouseX = (float)e.ClientX - _offsetX;
+        _currentMouseY = (float)e.ClientY - _offsetY;
+
+        if (_mousedown)
+        {
+            await this._context.ClearRectAsync(0, 0, this._canvasReference.Height, this._canvasReference.Width);
+            await this._context.BeginPathAsync();
+            _width = _currentMouseX - _lastMouseX;
+            _height = _currentMouseY - _lastMouseY;
+            await this._context.RectAsync(_lastMouseX, _lastMouseY, _width, _height);
+            await this._context.SetStrokeStyleAsync("red");
+            await this._context.SetLineWidthAsync(1);
+            await this._context.StrokeAsync();
+        }
+    }
+
+}
