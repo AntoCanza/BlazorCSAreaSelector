@@ -16,7 +16,7 @@ there are two projects:
 ## Usage
 select BlazorCSAreaSelector.Server as startup project and run it
 
-## Code Challenge Analysis
+## Code Analysis
 With Blazor server side i got stuck on how to refresh the image coming from the server. maybe is it possible with JSinterop? this was my first choise because is production ready.
 
 Anyway, with Blazor client side is working (more or less). I'm assuming that the server is a box that is doing "magics tricks", indeed all my effort was front-end focused.
